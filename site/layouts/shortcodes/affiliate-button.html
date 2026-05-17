@@ -1,6 +1,6 @@
 {{ $slug := .Get "slug" }}
 {{ $keyword := .Get "keyword" | default $slug }}
-{{ $asin := index hugo.Data.asins $slug }}
+{{ $asin := index site.Data.asins $slug }}
 <div class="affiliate-cta">
   {{ if $asin }}
   <a href="https://www.amazon.co.jp/dp/{{ $asin }}?tag={{ site.Params.amazon_tag }}" class="btn btn-amazon" target="_blank" rel="noopener noreferrer sponsored">
