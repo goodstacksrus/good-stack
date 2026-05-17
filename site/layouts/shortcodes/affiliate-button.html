@@ -1,0 +1,15 @@
+{{ $slug := .Get "slug" }}
+{{ $keyword := .Get "keyword" | default $slug }}
+{{ $asin := index hugo.Data.asins $slug }}
+<div class="affiliate-cta">
+  {{ if $asin }}
+  <a href="https://www.amazon.co.jp/dp/{{ $asin }}?tag={{ site.Params.amazon_tag }}" class="btn btn-amazon" target="_blank" rel="noopener noreferrer sponsored">
+    Amazonで詳細・価格を見る
+  </a>
+  {{ else }}
+  <!-- アソシエイト審査通過後にASINを登録してください (data/asins.json) -->
+  <a href="https://www.amazon.co.jp/s?k={{ $keyword | urlquery }}" class="btn btn-amazon" target="_blank" rel="noopener noreferrer">
+    Amazonで検索する
+  </a>
+  {{ end }}
+</div>

@@ -1,0 +1,24 @@
+<article class="article-card">
+  {{ if .Params.image }}
+  <div class="card-image">
+    <a href="{{ .RelPermalink }}">
+      <img src="{{ .Params.image }}" alt="{{ .Title }}" loading="lazy">
+    </a>
+  </div>
+  {{ else }}
+  <div class="card-image-placeholder">
+    <a href="{{ .RelPermalink }}">
+      <span>{{ with index .Params.categories 0 }}{{ . }}{{ else }}Article{{ end }}</span>
+    </a>
+  </div>
+  {{ end }}
+  <div class="card-content">
+    {{ with index .Params.categories 0 }}<span class="card-category">{{ . }}</span>{{ end }}
+    <h2 class="card-title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+    <p class="card-description">{{ .Description }}</p>
+    <div class="card-footer">
+      <span class="card-meta">{{ .Date.Format "2006.01.02" }}</span>
+      <a class="card-link" href="{{ .RelPermalink }}">続きを読む →</a>
+    </div>
+  </div>
+</article>

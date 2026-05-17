@@ -1,0 +1,40 @@
+{{ define "main" }}
+<article class="article-single">
+  {{ with .Params.image }}
+  <div class="article-hero-image-wrap">
+    <img class="article-hero-image" src="{{ . }}" alt="{{ $.Title }}">
+  </div>
+  {{ end }}
+  <div class="container">
+    <header class="article-header">
+      <div class="breadcrumb">
+        <a href="{{ .Site.Home.RelPermalink }}">ホーム</a> &rsaquo;
+        {{- range .Params.categories }}
+          {{- $cat := . -}}
+          {{- with $.Site.GetPage (printf "/categories/%s" ($cat | urlize)) }} <a href="{{ .RelPermalink }}">{{ $cat }}</a> &rsaquo;{{ end -}}
+        {{- end }}
+        <span>{{ .Title }}</span>
+      </div>
+      <h1>{{ .Title }}</h1>
+      {{- if eq .Section "articles" }}
+      <div class="article-meta">
+        <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006年01月02日" }}</time>
+        <span>{{ site.Params.author }}</span>
+      </div>
+      {{- if .Params.tags }}
+      <div class="article-tags">
+        {{- range .Params.tags }}
+          {{- $tag := . -}}
+          {{- with $.Site.GetPage (printf "/tags/%s" ($tag | urlize)) }}<a class="tag" href="{{ .RelPermalink }}">{{ $tag }}</a>{{ end -}}
+        {{- end }}
+      </div>
+      {{- end }}
+      {{- end }}
+    </header>
+
+    <div class="article-body">
+      {{ .Content }}
+    </div>
+  </div>
+</article>
+{{ end }}

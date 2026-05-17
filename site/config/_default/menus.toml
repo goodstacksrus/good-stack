@@ -1,0 +1,34 @@
+[[main]]
+  name = "ホーム"
+  url = "/"
+  weight = 1
+
+[[main]]
+  name = "記事一覧"
+  url = "/articles/"
+  weight = 2
+
+[[main]]
+  name = "このサイトについて"
+  url = "/about/"
+  weight = 3
+
+[[main]]
+  name = "お問い合わせ"
+  url = "/contact/"
+  weight = 4
+
+[[footer]]
+  name = "プライバシーポリシー"
+  url = "/privacy/"
+  weight = 1
+
+[[footer]]
+  name = "お問い合わせ"
+  url = "/contact/"
+  weight = 2
+
+[[footer]]
+  name = "このサイトについて"
+  url = "/about/"
+  weight = 3

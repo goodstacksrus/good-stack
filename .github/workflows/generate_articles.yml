@@ -1,0 +1,69 @@
+name: Generate Articles
+
+on:
+  schedule:
+    # 月・水・金の午前9時JST (UTC 0時) に実行
+    - cron: "0 0 * * 1,3,5"
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: "記事のトピック（空白の場合はレジストリから自動選択）"
+        required: false
+        default: ""
+      use_mock:
+        description: "モックを使用する（APIキー不要、テスト用）"
+        required: false
+        default: "false"
+        type: choice
+        options: ["false", "true"]
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate article
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+          ARTICLE_TOPIC: ${{ github.event.inputs.topic }}
+          USE_MOCK: ${{ github.event.inputs.use_mock }}
+        run: |
+          MOCK_FLAG=""
+          if [ "$USE_MOCK" = "true" ]; then
+            MOCK_FLAG="--mock"
+          fi
+          python scripts/local_generate.py \
+            --topic "$ARTICLE_TOPIC" \
+            --output-dir site/content/articles/ \
+            $MOCK_FLAG
+
+      - name: Commit new article
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add site/content/articles/ topic_registry.json
+          git diff --staged --quiet || git commit -m "chore: add generated article $(date +%Y-%m-%d)"
+          git push
+
+  deploy:
+    needs: generate
+    uses: ./.github/workflows/deploy.yml
+    permissions:
+      contents: read
+      pages: write
+      id-token: write

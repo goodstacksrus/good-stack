@@ -1,0 +1,55 @@
+name: Refresh Topics
+
+on:
+  schedule:
+    # 日曜午前9時JST (UTC 0時) に実行
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+    inputs:
+      source:
+        description: "取得元: google=Google Trends, gemini=Gemini grounding, both=両方"
+        required: false
+        default: "both"
+        type: choice
+        options: ["both", "gemini", "google"]
+      min_pending:
+        description: "pending件数がこの値以上なら補充をスキップ（0=常に実行）"
+        required: false
+        default: "5"
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Refresh topics
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: |
+          SOURCE="${{ github.event.inputs.source || 'both' }}"
+          MIN_PENDING="${{ github.event.inputs.min_pending || '5' }}"
+          python scripts/refresh_topics.py \
+            --source "$SOURCE" \
+            --min-pending "$MIN_PENDING"
+
+      - name: Commit updated registry
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add topic_registry.json
+          git diff --staged --quiet || git commit -m "chore: refresh topics from trends $(date +%Y-%m-%d)"
+          git push

@@ -1,0 +1,24 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Environment
+.env
+
+# Hugo build output
+site/public/
+site/resources/
+
+# Generated registry (commit this to track progress)
+# topic_registry.json  <- intentionally tracked
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

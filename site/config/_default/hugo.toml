@@ -1,0 +1,18 @@
+baseURL = "https://goodstacksrus.github.io/good-stack/"
+locale = "ja"
+defaultContentLanguage = "ja"
+title = "GOOD STACK"
+enableRobotsTXT = true
+enableEmoji = false
+hasCJKLanguage = true
+
+[markup.goldmark.renderer]
+  unsafe = true
+
+[markup.highlight]
+  style = "github"
+
+[outputs]
+  home = ["HTML", "RSS"]
+  section = ["HTML", "RSS"]
+  page = ["HTML"]

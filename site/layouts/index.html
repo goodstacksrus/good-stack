@@ -1,0 +1,30 @@
+{{ define "main" }}
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">Daily Good Picks</div>
+    <h1>積み上げるべきものが、ここにある</h1>
+    <p>モノ選び・お金の知識・最新時事。生活を豊かにする情報をキュレーションしてお届けします。</p>
+  </div>
+</section>
+
+<section class="recent-articles">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">最新記事</h2>
+    </div>
+    <div class="article-grid">
+      {{ $articles := (where .Site.RegularPages "Section" "articles").ByDate.Reverse }}
+      {{ range first 9 $articles }}
+      {{ partial "article-card.html" . }}
+      {{ end }}
+    </div>
+    {{ if gt (len $articles) 9 }}
+    <div class="view-all">
+      {{ with .Site.GetPage "section" "articles" }}
+      <a href="{{ .RelPermalink }}" class="btn">記事をもっと見る</a>
+      {{ end }}
+    </div>
+    {{ end }}
+  </div>
+</section>
+{{ end }}

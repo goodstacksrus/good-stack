@@ -1,0 +1,14 @@
+{{ define "main" }}
+<div class="recent-articles">
+  <div class="container">
+    <div class="section-header list-header">
+      <h1 class="section-title">{{ .Title }}</h1>
+    </div>
+    <div class="article-grid">
+      {{ range .Pages.ByDate.Reverse }}
+      {{ partial "article-card.html" . }}
+      {{ end }}
+    </div>
+  </div>
+</div>
+{{ end }}
