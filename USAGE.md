@@ -1,5 +1,12 @@
 # 使い方ガイド — GOOD STACK
-
+```
+# トピックを指定
+python scripts\local_generate.py --topic "スマートプラグ おすすめ 節電" --search
+```powershell
+# ターミナルを別に開いてHugo開発サーバーを起動
+cd site
+hugo server --buildDrafts --buildFuture --navigateToChanged
+```
 ---
 
 ## 前提条件（初回のみ）
