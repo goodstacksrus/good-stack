@@ -1,5 +1,5 @@
 # Python
-.venv/
+.venv-good-stack/
 __pycache__/
 *.pyc
 *.pyo
