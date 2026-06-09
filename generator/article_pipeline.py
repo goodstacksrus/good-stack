@@ -30,7 +30,7 @@ def run_pipeline(
     article = llm.generate_article(topic, use_grounding=use_grounding)
     article.front_matter.pub_date = datetime.datetime.now()
 
-    image_keywords = article.front_matter.tags[:3] or [topic]
+    image_keywords = topic.split()[:3]
     images = fetch_article_images(image_keywords, count=3)
 
     if images:

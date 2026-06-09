@@ -29,6 +29,12 @@
 
 > 「Amazonアフィリエイトで稼ぐための記事メディアを、AIが全自動で運営する」
 
+### サイトのコンセプト（三本柱）
+
+- **モノ**：ガジェット・アクセサリー・家電のレビュー・比較
+- **お金**：節電・コスパ・節約術
+- **時事**：最新トレンドに乗ったおすすめ情報
+
 ### 具体的には
 
 1. **テーマを決める**（例：「スマートプラグ おすすめ 節電」）
@@ -109,13 +115,13 @@
 | AI 記事生成 | **Google Gemini 2.5 Flash API** | 高品質な文章を自動生成。Google検索との連携も可能 |
 | トレンド取得 | **Google Trends（pytrends）** | 今何が検索されているかをリアルタイム取得 |
 | 記事画像 | **Pexels API** | 商用利用可の高品質写真が無料で使い放題 |
-| サイト構築 | **Hugo** | Markdownを即座に本格的なウェブサイトに変換する静的サイトジェネレーター |
+| サイト構築 | **Hugo v0.161.1-extended** | Markdownを即座に本格的なウェブサイトに変換する静的サイトジェネレーター |
 | サイト公開 | **GitHub Pages** | GitHubのリポジトリをそのままウェブサイトとして無料公開 |
 | 自動化 | **GitHub Actions** | スケジュール実行・CI/CD。月水金に記事を自動生成 |
 | バリデーション | **Pydantic** | AIが返したJSONデータの型チェックと変換 |
 | HTTP通信 | **httpx** | Pexels APIへの画像取得リクエスト |
 | テスト | **pytest** | コードが正しく動くか自動検証 |
-| 言語 | **Python 3.x** | スクリプト全体の実装言語 |
+| 言語 | **Python 3.13** | スクリプト全体の実装言語（GitHub Actionsは3.11） |
 
 ### APIキーが必要なサービス
 
@@ -131,40 +137,51 @@
 ```
 good-stack/
 │
-├── .env                    ← APIキーを書くファイル（非公開・Gitに含めない）
-├── .env.example            ← .envのひな形（Gitに含まれる）
-├── requirements.txt        ← 必要なPythonパッケージ一覧
-├── topic_registry.json     ← 記事のネタ帳（自動生成・自動更新）
+├── .env                       ← APIキーを書くファイル（非公開・Gitに含めない）
+├── .env.example               ← .envのひな形（Gitに含まれる）
+├── requirements.txt           ← 必要なPythonパッケージ一覧
+├── topic_registry.json        ← 記事のネタ帳（自動生成・自動更新）
+├── CHECKPOINT.md              ← 作業状況の記録（フェーズ・完了済み・次のTODO）
+├── USAGE.md                   ← 使い方ガイド（コマンド一覧・フラグ解説）
 │
-├── generator/              ← 記事生成の「エンジン」部分
-│   ├── article_pipeline.py ← メインの処理フロー（全体の司令塔）
-│   ├── gemini_client.py    ← GeminiへのAPI呼び出し
-│   ├── image_client.py     ← PexelsへのAPI呼び出し
-│   ├── markdown_writer.py  ← 記事をMarkdownファイルに書き出す
-│   ├── models.py           ← 記事データの型定義（Pydantic）
-│   ├── topic_registry.py   ← ネタ帳の読み書き管理
-│   └── trend_client.py     ← Google Trendsからトピック取得
+├── .venv-good-stack/          ← Python仮想環境（このプロジェクト専用）
 │
-├── scripts/                ← ターミナルから実行するスクリプト
-│   ├── local_generate.py   ← 記事を1本生成する（メインコマンド）
-│   ├── refresh_topics.py   ← ネタ帳にトピックを補充する
-│   ├── list_models.py      ← 使えるGeminiモデルを確認
-│   └── test_api.py         ← APIキーの動作確認
+├── generator/                 ← 記事生成の「エンジン」部分
+│   ├── article_pipeline.py    ← メインの処理フロー（全体の司令塔）
+│   ├── gemini_client.py       ← GeminiへのAPI呼び出し（通常 + Google検索Grounding）
+│   ├── image_client.py        ← PexelsへのAPI呼び出し
+│   ├── markdown_writer.py     ← 記事をMarkdownファイルに書き出す
+│   ├── models.py              ← 記事データの型定義（Pydantic）
+│   ├── topic_registry.py      ← ネタ帳の読み書き管理（シード50件登録済み）
+│   ├── trend_client.py        ← Google Trendsからトピック取得
+│   └── providers/             ← LLMプロバイダー抽象化レイヤー
 │
-├── site/                   ← Hugoサイト（ウェブサイト本体）
-│   ├── config/             ← サイトの設定（URL、タイトル、メニューなど）
-│   ├── content/            ← 記事ファイルの置き場所
-│   │   └── articles/       ← ここに .md ファイルが溜まっていく
-│   ├── layouts/            ← HTMLテンプレート（見た目の設計）
-│   ├── static/             ← CSS・画像など静的ファイル
-│   └── public/             ← Hugoがビルドした完成品（Gitignore推奨）
+├── scripts/                   ← ターミナルから実行するスクリプト
+│   ├── local_generate.py      ← 記事を1本生成する（メインコマンド）
+│   ├── refresh_topics.py      ← ネタ帳にトピックを補充する
+│   ├── list_models.py         ← 使えるGeminiモデルを確認
+│   └── test_api.py            ← APIキーの動作確認
 │
-├── tests/                  ← 自動テスト（pytest）
+├── site/                      ← Hugoサイト（ウェブサイト本体）
+│   ├── config/_default/       ← サイトの設定（hugo.toml・params.toml・menus.toml）
+│   ├── content/               ← 記事ファイルの置き場所
+│   │   ├── articles/          ← ここに .md ファイルが溜まっていく
+│   │   ├── about.md           ← About ページ（Amazon審査必須）
+│   │   ├── privacy.md         ← プライバシーポリシー（Amazon審査必須）
+│   │   └── contact.md         ← お問い合わせ（Amazon審査必須）
+│   ├── layouts/               ← HTMLテンプレート（見た目の設計）
+│   ├── static/
+│   │   ├── css/main.css       ← メインCSS（Gear Patrol風デザイン）
+│   │   ├── images/            ← 静的画像
+│   │   └── robots.txt
+│   └── public/                ← Hugoがビルドした完成品（Gitignore推奨）
 │
-└── .github/workflows/      ← GitHub Actions の定義ファイル
-    ├── generate_articles.yml ← 月水金に記事を自動生成
-    ├── refresh_topics.yml    ← 日曜にネタ帳を自動補充
-    └── deploy.yml            ← pushのたびにGitHub Pagesにデプロイ
+├── tests/                     ← 自動テスト（pytest）
+│
+└── .github/workflows/         ← GitHub Actions の定義ファイル
+    ├── generate_articles.yml  ← 月水金に記事を自動生成
+    ├── refresh_topics.yml     ← 日曜にネタ帳を自動補充
+    └── deploy.yml             ← pushのたびにGitHub Pagesにデプロイ
 ```
 
 ---
@@ -181,11 +198,11 @@ cd good-stack
 ### ステップ2: Python仮想環境を作成・有効化
 
 ```powershell
-python -m venv .venv
-.venv\Scripts\activate
+python -m venv .venv-good-stack
+.venv-good-stack\Scripts\activate
 ```
 
-> プロンプトの先頭に `(.venv)` と表示されれば有効化できています。
+> プロンプトの先頭に `(.venv-good-stack)` と表示されれば有効化できています。
 
 ### ステップ3: 依存パッケージをインストール
 
@@ -230,33 +247,31 @@ Hugoの公式サイト（https://gohugo.io/installation/）からインストー
 
 ```powershell
 cd C:\Users\oueno\venv\good-stack
-.venv\Scripts\activate
+.venv-good-stack\Scripts\activate
 ```
 
 ### 記事を1本生成する
 
-**パターンA: とにかく試したい（APIキー不要・モック）**
+| フラグ | 意味 |
+|---|---|
+| なし | Geminiで通常生成・Pexels画像付き（約30〜60秒） |
+| `--mock` | APIなし・テンプレートで即時生成（画像なし・動作確認用） |
+| `--search` | Google検索で最新情報を取得してから生成・画像付き（約1〜2分） |
+| `--topic "..."` | トピックを直接指定（省略するとレジストリから自動選択） |
+
 ```powershell
+# モック生成（APIキー不要・構造確認用）
 python scripts\local_generate.py --mock
-```
-> AIを使わずダミー文章で即時生成。記事の構造確認に使う。
 
-**パターンB: 通常生成**
-```powershell
+# 通常生成（レジストリから自動選択）
 python scripts\local_generate.py
-```
-> GeminiがネタをレジストリからピックアップしてAI記事を生成。約30〜60秒。
 
-**パターンC: テーマを自分で指定して生成**
-```powershell
+# テーマを指定して生成
 python scripts\local_generate.py --topic "スマートプラグ おすすめ 節電"
-```
 
-**パターンD: Google検索つき（最高品質・推奨）**
-```powershell
+# Google検索つき最高品質生成（推奨）
 python scripts\local_generate.py --topic "AirPods Pro ケース" --search
 ```
-> 最新の製品情報・価格・レビューをGoogle検索してから執筆。約1〜2分。
 
 ### サイトをブラウザで確認する（別ターミナルで）
 
@@ -270,12 +285,25 @@ hugo server --buildDrafts --buildFuture --navigateToChanged
 
 ### ネタ帳（topic_registry.json）を補充する
 
+| フラグ | 意味 |
+|---|---|
+| なし | Google Trends + Gemini 両方から取得して追加 |
+| `--source gemini` | Gemini groundingのみ（Google Trendsが遅い時） |
+| `--source google` | Google Trendsのみ |
+| `--seeds "..."` | 指定ジャンルに絞り込む |
+| `--add "..."` | トピックを直接追加（トレンド取得なし） |
+| `--dry-run` | 追加せず取得結果だけ確認 |
+| `--min-pending N` | pending が N 件以上あればスキップ |
+
 ```powershell
 # Google Trends + Gemini で自動取得（推奨）
 python scripts\refresh_topics.py
 
 # ジャンルを絞って取得
 python scripts\refresh_topics.py --seeds "キャンプ アウトドア" "登山 ガジェット"
+
+# Geminiのみ（Google Trendsが遅い・エラーの時）
+python scripts\refresh_topics.py --source gemini
 
 # トピックを手動で直接追加
 python scripts\refresh_topics.py --add "iPhone 16 Pro ケース おすすめ"
@@ -450,23 +478,36 @@ site/content/articles/2026051614-smart-plug-energy-saving.md
 - [x] Python記事生成エンジン
 - [x] Gemini API連携（通常 + Google検索Grounding）
 - [x] Pexels画像自動取得（ヒーロー1枚 + 本文2枚）
-- [x] Hugo サイト構築（Gear Patrol風デザイン）
+- [x] Hugo サイト構築（Gear Patrol風デザイン・モバイル対応・SVGロゴ）
+- [x] 固定ページ（About / Privacy / Contact）— Amazon審査必須の3ページ
 - [x] GitHub Actions（記事自動生成・トピック補充・デプロイ）
-- [x] トレンドトピック自動補充（Google Trends + Gemini）
+- [x] トレンドトピック自動補充（Google Trends + Gemini Grounding ハイブリッド）
 - [x] pytest テスト（11テスト全パス）
+- [x] セキュリティレビュー（APIキー漏洩なし・シェルインジェクション対策済み）
+- [x] GitHub Pages 公開済み（STEP 1〜3完了）
 
 ### Phase 2（進行中）
 
-- [ ] GitHub Secrets に APIキーを登録（GitHub Actionsを本稼働させる）
-- [ ] Google Analytics 4 の設定（アクセス解析）
-- [ ] Google Search Console に登録（SEO強化）
-- [ ] 記事20本以上を生成・公開
+**現在地: STEP 3完了（GitHub Pages公開中）→ 次は STEP 4**
+
+- [ ] **STEP 4**: GitHub Secrets に APIキーを登録（`GOOGLE_API_KEY` / `PEXELS_API_KEY`）
+- [ ] **STEP 5**: Google Analytics 4 の設定（`site/config/_default/params.toml` に `ga4_id` を記入）
+- [ ] **STEP 6**: Google Search Console に登録（サイトマップ送信）
+- [ ] 記事20本以上を生成・公開（現在 **16本** 生成済み）
 
 ### Phase 3（今後）
 
-- [ ] Amazonアソシエイトに申請・承認取得
+- [ ] Amazonアソシエイトに申請・承認取得（記事20本・GA4設定・各種ページ確認後）
 - [ ] 記事へのAmazonアフィリエイトリンクを挿入
 - [ ] 収益化開始
+
+### Amazonアソシエイト申請チェックリスト
+
+- [ ] About・Privacy・Contact ページが正常表示される
+- [ ] フッターにアフィリエイト開示文が表示されている
+- [ ] 記事が20本以上公開されている
+- [ ] Google Analytics でアクセスが記録されている
+- [ ] スマートフォンで表示確認済み
 
 ---
 
@@ -474,7 +515,7 @@ site/content/articles/2026051614-smart-plug-energy-saving.md
 
 ```powershell
 # 仮想環境の有効化（毎回必要）
-.venv\Scripts\activate
+.venv-good-stack\Scripts\activate
 
 # モックで記事生成（確認用・APIキー不要）
 python scripts\local_generate.py --mock
@@ -503,4 +544,4 @@ python scripts\list_models.py
 
 ---
 
-*この仕様書は `仕様書.md` として GOOD STACK プロジェクトルートに保存されています。*
+*最終更新: 2026-06-09 / この仕様書は `SPEC.md` として GOOD STACK プロジェクトルートに保存されています。*
